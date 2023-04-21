@@ -1,7 +1,3 @@
-provider "aws" {
-    region = "ap-south-1"
-}
-
 resource "aws_launch_configuration" "tf-launchConfig" {
    name_prefix = "tf-launchConfig-"
    image_id = "ami-0325e3016099f9112"

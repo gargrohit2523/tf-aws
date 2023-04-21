@@ -1,7 +1,3 @@
-provider "aws" {  
-    region = "ap-south-1"
-}
-
 resource "aws_instance" "tf-first-instance" {
     ami = "ami-0325e3016099f9112"
     instance_type = "t2.micro"  

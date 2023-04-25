@@ -46,18 +46,23 @@ resource "aws_security_group" "tf-sg-1" {
         from_port = var.server_port
         to_port = var.server_port
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = local.allips
     }
 }
 
 variable "server_port" {
   type = number
-  default = 8080
+  default = local.defaultserverport
   description = "server port to listen on"
 }
 
 output "ec2_publicip" {
   value = "aws_instance.tf_first_instance.public_ip"
   description = "public ip of launched EC2 instance"
+}
+
+locals {
+  allips = ["0.0.0.0/0"]
+  defaultserverport = 8080
 }
 

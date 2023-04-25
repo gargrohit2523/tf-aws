@@ -6,22 +6,27 @@ resource "aws_db_instance" "bn-mysql-dev" {
   db_name                = "example_database"
   username            = "admin"
 
-  password            = local.db_password.mysql-password
+  skip_final_snapshot = true
+  apply_immediately = true
+
+  password            = jsondecode(
+    data.aws_secretsmanager_secret_version.current.secret_string
+  ).mysql-password
 }
 
 data "aws_secretsmanager_secret" "secrets" {
-  arn = "arn:aws:secretsmanager:us-east-1:982386188982:secret:dev/bn/database/mysql-qfAKTO"
+  name = "dev/bn/database/mysql"
 }
 
 data "aws_secretsmanager_secret_version" "current" {
   secret_id = data.aws_secretsmanager_secret.secrets.id
 }
 
-locals {
-  db_password = jsondecode(
-    data.aws_secretsmanager_secret_version.current.secret_string
-  )
-}
+# locals {
+#   db_password = jsondecode(
+#     data.aws_secretsmanager_secret_version.current.secret_string
+#   )
+# }
 
 terraform {
     backend "s3" {

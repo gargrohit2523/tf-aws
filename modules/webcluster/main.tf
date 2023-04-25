@@ -1,25 +1,30 @@
 resource "aws_launch_configuration" "tf-launchConfig" {
    name_prefix = "tf-launchConfig-"
-   image_id = "ami-0325e3016099f9112"
-   instance_type = "t2.micro"  
-   security_groups = [aws_security_group.tf-sg-1.id]
-   user_data = <<-EOF
-             #!/bin/bash
-             echo "Hello, World" > index.html
-             nohup busybox httpd -f -p ${var.server_port} &
-             EOF
+   image_id = var.image_id
+   instance_type = var.instance_type 
+   security_groups = module.sg.sg_id
+   user_data = data.template_file.user_data.rendered
    lifecycle {
      create_before_destroy = true
    }
 
 }
 
+data "template_file" "user_data" {
+  template = file("${path.module}/userdata.sh")
+
+  vars = {
+    server_port = var.server_port,
+    print_text = var.print_text
+  }
+}
+
 resource "aws_autoscaling_group" "tf-asg" {
     launch_configuration = aws_launch_configuration.tf-launchConfig.name
     vpc_zone_identifier = data.aws_subnets.default.ids
 
-    min_size = 2
-    max_size = 6
+    min_size = var.min
+    max_size = var.max
 
     tag {
       key = "name"
@@ -39,30 +44,13 @@ data "aws_subnets" "default" {
     }
 }
 
-resource "aws_security_group" "tf-sg-1" {
-    name = "terraform-sg-1"
-
-    ingress {
-        from_port = var.server_port
-        to_port = var.server_port
-        protocol = "tcp"
-        cidr_blocks = local.allips
-    }
-}
-
 variable "server_port" {
   type = number
-  default = local.defaultserverport
   description = "server port to listen on"
 }
 
 output "ec2_publicip" {
   value = "aws_instance.tf_first_instance.public_ip"
   description = "public ip of launched EC2 instance"
-}
-
-locals {
-  allips = ["0.0.0.0/0"]
-  defaultserverport = 8080
 }
 

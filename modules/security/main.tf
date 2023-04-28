@@ -7,6 +7,13 @@ resource "aws_security_group" "tf-sg-1" {
         protocol = "tcp"
         cidr_blocks = local.allips
     }
+
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "all"
+        cidr_blocks = local.allips
+    }
 }
 
 locals {

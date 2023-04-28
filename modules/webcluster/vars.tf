@@ -8,6 +8,11 @@ variable "instance_type" {
   description = "instance type to launch"
 }
 
+variable "server_port" {
+  type = number
+  description = "server port to listen on"
+}
+
 variable "print_text" {
   type = string
   description = "text to print"
